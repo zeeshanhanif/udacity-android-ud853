@@ -1,9 +1,12 @@
 package com.example.android.sunshine;
 
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,8 +15,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -59,6 +64,17 @@ public class MainFragment extends Fragment {
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forcast);
         listView.setAdapter(arrayAdapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String forecast = arrayAdapter.getItem(position);
+                Toast.makeText(getActivity(),forecast,Toast.LENGTH_SHORT).show();
+                Intent detailActivityIntent = new Intent(getActivity(),DetailActivity.class);
+                detailActivityIntent.putExtra(Intent.EXTRA_TEXT,forecast);
+                startActivity(detailActivityIntent);
+            }
+        });
+
         //apiRequest();
 
         return rootView;
@@ -76,17 +92,32 @@ public class MainFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_refresh){
-            FetchWeatherAsyncTask fetchWeatherAsyncTask = new FetchWeatherAsyncTask();
-            fetchWeatherAsyncTask.execute("94043");
+            updateWeather();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public String[] apiRequest(String postalCode){
+
+    private void updateWeather(){
+        FetchWeatherAsyncTask fetchWeatherAsyncTask = new FetchWeatherAsyncTask();
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = pref.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+        String unit = pref.getString(getString(R.string.pref_temperature_unit_key),getString(R.string.pref_unit_default));
+
+        fetchWeatherAsyncTask.execute(location,unit);
+
+    }
+    public String[] apiRequest(String postalCode,String unit){
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -107,13 +138,13 @@ public class MainFragment extends Fragment {
             final String APPID_PARAM = "APPID";
 
             String format = "json";
-            String units = "metric";
+            //String units = "metric";
             int numDays = 7;
 
             Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                     .appendQueryParameter(QUERY_PARAM,postalCode)
                     .appendQueryParameter(FORMAT_PARAM,format)
-                    .appendQueryParameter(UNITS_PARAM,units)
+                    .appendQueryParameter(UNITS_PARAM,unit)
                     .appendQueryParameter(DAYS_PARAM,Integer.toString(numDays))
                     .appendQueryParameter(APPID_PARAM,BuildConfig.OPEN_WEATHER_MAP_API_KEY)
                     .build();
@@ -179,7 +210,7 @@ public class MainFragment extends Fragment {
         private final String TAG = FetchWeatherAsyncTask.class.getSimpleName();
         @Override
         protected String[] doInBackground(String... params) {
-            return apiRequest(params[0]);
+            return apiRequest(params[0],params[1]);
         }
 
         @Override
