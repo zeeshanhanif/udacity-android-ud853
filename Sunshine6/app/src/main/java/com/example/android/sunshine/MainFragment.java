@@ -128,11 +128,14 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         inflater.inflate(R.menu.forecast_menu,menu);
     }
 
-    @Override
+    /*@Override
     public void onStart() {
         super.onStart();
         updateWeather();
-    }
+    }*/
+
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -259,6 +262,12 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     
+    public void onLocationChanged (){
+        updateWeather();
+        getLoaderManager().restartLoader(FORECAST_LOADER,null,this);
+        //this.
+    }
+
 
 
     /*public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]>{

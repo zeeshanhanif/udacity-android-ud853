@@ -28,7 +28,9 @@
 
         <provider
             android:authorities="com.example.android.sunshine"
-            android:name=".data.WeatherProvider"/>
+            android:name=".data.WeatherProvider"
+            android:exported="true"
+            android:enabled="true"/>
     </application>
     
 

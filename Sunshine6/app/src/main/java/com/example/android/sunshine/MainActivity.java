@@ -15,11 +15,14 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private String mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mLocation = Utility.getPreferredLocation(this);
     }
 
     @Override
@@ -57,6 +60,20 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             Log.e(TAG,"Couldn't call "+location+", on Map");
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String location = Utility.getPreferredLocation(this);
+        if(location !=null && !location.equals(mLocation)){
+            MainFragment fragment = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment);
+            if(fragment !=null){
+                fragment.onLocationChanged();
+            }
+            mLocation = location;
         }
     }
 }

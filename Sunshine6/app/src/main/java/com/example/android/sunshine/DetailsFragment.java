@@ -139,11 +139,11 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     private String convertCursorRowToUXFormat(Cursor cursor) {
 
         String highAndLow = formatHighLows(
-                cursor.getDouble(MainFragment.COL_WEATHER_MAX_TEMP),
-                cursor.getDouble(MainFragment.COL_WEATHER_MIN_TEMP));
+                cursor.getDouble(COL_WEATHER_MAX_TEMP),
+                cursor.getDouble(COL_WEATHER_MIN_TEMP));
 
-        return Utility.formatDate(cursor.getLong(MainFragment.COL_WEATHER_DATE)) +
-                " - " + cursor.getString(MainFragment.COL_WEATHER_DESC) +
+        return Utility.formatDate(cursor.getLong(COL_WEATHER_DATE)) +
+                " - " + cursor.getString(COL_WEATHER_DESC) +
                 " - " + highAndLow;
     }
 }
