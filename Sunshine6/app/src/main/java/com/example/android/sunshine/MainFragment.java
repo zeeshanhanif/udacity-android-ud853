@@ -8,7 +8,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,10 +41,11 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
     private ForecastAdapter mForecastAdapter;
+    private static final int FORECAST_LOADER = 0;
     public MainFragment() {
         // Required empty public constructor
     }
@@ -51,34 +56,21 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
+        mForecastAdapter = new ForecastAdapter(getActivity(),null,0);
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        ArrayList<String> list_forcasts = new ArrayList<String>();
-        list_forcasts.add("Today - Sunny -- 88 / 63");
-        list_forcasts.add("Tomorrow - Foggy -- 70 / 46");
-        list_forcasts.add("Wed - Cloudy -- 72 / 63");
-        list_forcasts.add("Thurs - Rainy -- 64 / 51");
-        list_forcasts.add("Fri - Foggy -- 70 / 46");
-        list_forcasts.add("Sat - Sunny -- 76 / 68");
-
-
-        String locationSetting = Utility.getPreferredLocation(getActivity());
-        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-        Uri weatherLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting,System.currentTimeMillis());
-
-        Cursor cur = getActivity().getContentResolver().query(weatherLocationUri,null,null,null,sortOrder);
-
-        mForecastAdapter = new ForecastAdapter(getActivity(),cur,0);
-
-        /*arrayAdapter =
-                new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast,R.id.list_item_forcast_textview,list_forcasts);
-*/
+        // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forcast);
         listView.setAdapter(mForecastAdapter);
 
-        //apiRequest();
-
         return rootView;
+    }
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FORECAST_LOADER,null,this);
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -200,6 +192,26 @@ public class MainFragment extends Fragment {
             }
         }
         return null;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        String locationSetting = Utility.getPreferredLocation(getActivity());
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting,System.currentTimeMillis());
+
+        return new CursorLoader(getActivity(),weatherForLocationUri,null,null,null,sortOrder);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mForecastAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mForecastAdapter.swapCursor(null);
     }
 
     
