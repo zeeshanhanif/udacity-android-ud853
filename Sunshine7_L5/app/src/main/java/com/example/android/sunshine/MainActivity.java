@@ -15,14 +15,35 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private String mLocation;
+
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mLocation = Utility.getPreferredLocation(this);
         setContentView(R.layout.activity_main);
 
-        mLocation = Utility.getPreferredLocation(this);
+
+       /* getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_forecast, new MainFragment())
+                .commit();
+*/
+        if(findViewById(R.id.weather_detail_container) !=null){
+            mTwoPane = true;
+
+            if(savedInstanceState == null){
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.weather_detail_container, new DetailsFragment(),DETAILFRAGMENT_TAG)
+                        .commit();
+            }
+        }
+        else {
+            mTwoPane = false;
+        }
+
     }
 
     @Override

@@ -128,11 +128,11 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         inflater.inflate(R.menu.forecast_menu,menu);
     }
 
-    /*@Override
+    @Override
     public void onStart() {
         super.onStart();
         updateWeather();
-    }*/
+    }
 
 
 
