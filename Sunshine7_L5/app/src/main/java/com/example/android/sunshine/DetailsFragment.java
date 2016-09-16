@@ -39,6 +39,9 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     private static final String FORCAST_SHARE_HASHTAG = "#SunshineApp";
     private ShareActionProvider mShareActionProvider;
     private String mForecast;
+    private Uri mUri;
+
+    static final String DETAIL_URI = "URI";
 
     private static final String[] DETAIL_COLUMNS = {
             WeatherEntry.TABLE_NAME + "." + WeatherEntry._ID,
@@ -112,6 +115,12 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mUri = arguments.getParcelable(DetailsFragment.DETAIL_URI);
+        }
+
         View rootView = inflater.inflate(R.layout.fragment_details, container, false);
         mIconView = (ImageView) rootView.findViewById(R.id.detail_icon);
         mDateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
@@ -133,11 +142,10 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Intent intent = getActivity().getIntent();
-        if(intent == null || intent.getData() == null){
-            return null;
+        if(null != mUri){
+            return new CursorLoader(getActivity(), mUri,DETAIL_COLUMNS,null,null,null);
         }
-        return new CursorLoader(getActivity(), intent.getData(),DETAIL_COLUMNS,null,null,null);
+        return null;
     }
 
     @Override
@@ -219,5 +227,16 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         return Utility.formatDate(cursor.getLong(COL_WEATHER_DATE)) +
                 " - " + cursor.getString(COL_WEATHER_DESC) +
                 " - " + highAndLow;
+    }
+
+    void onLocationChanged( String newLocation ) {
+        // replace the uri, since the location has changed
+        Uri uri = mUri;
+        if (null != uri) {
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            mUri = updatedUri;
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
     }
 }

@@ -12,7 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainFragment.Callback{
 
     private static final String TAG = "MainActivity";
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
@@ -26,11 +26,6 @@ public class MainActivity extends AppCompatActivity {
         mLocation = Utility.getPreferredLocation(this);
         setContentView(R.layout.activity_main);
 
-
-       /* getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_forecast, new MainFragment())
-                .commit();
-*/
         if(findViewById(R.id.weather_detail_container) !=null){
             mTwoPane = true;
 
@@ -94,7 +89,35 @@ public class MainActivity extends AppCompatActivity {
             if(fragment !=null){
                 fragment.onLocationChanged();
             }
+            DetailsFragment df = (DetailsFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if ( null != df ) {
+                df.onLocationChanged(location);
+            }
             mLocation = location;
         }
+    }
+
+    @Override
+    public void onItemSelected(Uri contentUri) {
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putParcelable(DetailsFragment.DETAIL_URI, contentUri);
+
+            DetailsFragment fragment = new DetailsFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.weather_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        }
+        else {
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .setData(contentUri);
+            startActivity(intent);
+        }
+
     }
 }

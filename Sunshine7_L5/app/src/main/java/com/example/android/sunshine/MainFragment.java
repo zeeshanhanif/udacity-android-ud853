@@ -100,9 +100,11 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 if(cursor != null){
                     String locationSetting = Utility.getPreferredLocation(getActivity());
-                    Intent intent = new Intent(getActivity(),DetailActivity.class);
+                    Callback callback = (Callback) getActivity();
+                    callback.onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)));
+                    /*Intent intent = new Intent(getActivity(),DetailActivity.class);
                     intent.setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting,cursor.getLong(COL_WEATHER_DATE)));
-                    startActivity(intent);
+                    startActivity(intent);*/
                 }
             }
         });
@@ -268,7 +270,9 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         //this.
     }
 
-
+    public interface Callback {
+        public void onItemSelected(Uri dateUri);
+    }
 
     /*public class FetchWeatherAsyncTask extends AsyncTask<String, Void, String[]>{
 

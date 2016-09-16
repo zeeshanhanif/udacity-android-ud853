@@ -5,6 +5,7 @@
     tools:context="com.example.android.sunshine.MainFragment">
 
    <ListView
+       style="@style/ForecastListStyle"
        android:layout_width="match_parent"
        android:layout_height="match_parent"
        android:id="@+id/listview_forcast"></ListView>
