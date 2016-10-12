@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
         }
         else {
             mTwoPane = false;
+            getSupportActionBar().setElevation(0f);
         }
 
         MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment);
