@@ -39,6 +39,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
             mTwoPane = false;
         }
 
+        MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment);
+        if(mainFragment !=null)
+            mainFragment.setUseTodayLayout(!mTwoPane);
+
     }
 
     @Override
