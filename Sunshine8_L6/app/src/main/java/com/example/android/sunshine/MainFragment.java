@@ -1,6 +1,9 @@
 package com.example.android.sunshine;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -26,6 +29,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.android.sunshine.data.WeatherContract;
+import com.example.android.sunshine.service.SunshineService;
 
 import org.json.JSONException;
 
@@ -170,10 +174,13 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
 
     private void updateWeather(){
-        FetchWeatherAsyncTask fetchWeatherAsyncTask = new FetchWeatherAsyncTask(getActivity());
-        String location = Utility.getPreferredLocation(getActivity());
+        Intent alarmIntent = new Intent(getActivity(),SunshineService.AlarmReceiver.class);
+        alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,Utility.getPreferredLocation(getActivity()));
 
-        fetchWeatherAsyncTask.execute(location);
+        PendingIntent pi = PendingIntent.getBroadcast(getActivity(),0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);
+
+        AlarmManager am = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+5000,pi);
 
     }
     public String[] apiRequest(String postalCode,String unit){
